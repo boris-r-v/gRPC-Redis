@@ -2,9 +2,8 @@ syntax = "proto3";
 
 package bsan;
 
-// The greeting service definition.
+
 service BalanceRPC {
-  // Sends a greeting
   rpc CreateBalance (CreateBalanceRequest) returns (CreateBalanceResponce) {}
   rpc SetBalance (SetBalanceRequest) returns (SetBalanceResponce) {}
 }
