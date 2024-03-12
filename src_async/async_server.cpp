@@ -49,7 +49,6 @@ class ServerImpl{
 
         class CreateBalanceCaller final: public CallerBase {
 	    public:
-
 	        CreateBalanceCaller(bsan::BalanceRPC::AsyncService* service, grpc::ServerCompletionQueue* cq):
                     CallerBase(service, cq), responder_(&ctx_)
             {
@@ -58,11 +57,10 @@ class ServerImpl{
 	        void Proceed() override {
 	            if (status_ == CREATE) {
                     status_ = PROCESS; // Make this instance progress to the PROCESS state.
-
                     service_->RequestCreateBalance(&ctx_, &request_, &responder_, cq_, cq_,this);
                 } else if (status_ == PROCESS) {
+                    
                     new CreateBalanceCaller(service_, cq_);
-
                     // The actual processing.
                     std::string prefix("Hello ");
                     std::cout << "async CreateBalanceCaller: " << request_.name() << std::endl;
@@ -126,6 +124,7 @@ class ServerImpl{
 
                 GPR_ASSERT(cq_->Next(&tag, &ok));
                 GPR_ASSERT(ok);
+                
                 static_cast<CallerBase*>(tag)->Proceed();
             }
         }
