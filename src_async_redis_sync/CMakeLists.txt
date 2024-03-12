@@ -17,6 +17,15 @@ message(STATUS "Using gRPC libs: ${_GRPC_GRPCPP} ")
 find_program(_PROTOBUF_PROTOC protoc)
 find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
 
+#find_path(HIREDIS_HEADER hiredis)
+#target_include_directories(target PUBLIC ${HIREDIS_HEADER})
+find_library(HIREDIS_LIB hiredis)
+#target_link_libraries(target ${HIREDIS_LIB})
+
+#find_path(REDIS_PLUS_PLUS_HEADER sw)
+#target_include_directories(target PUBLIC ${REDIS_PLUS_PLUS_HEADER})
+find_library(REDIS_PLUS_PLUS_LIB redis++)
+#target_link_libraries(target ${REDIS_PLUS_PLUS_LIB})
 
 #set(_GRPC_GRPCPP gRPC::grpc++)
 
@@ -50,9 +59,10 @@ add_library(hw_grpc_proto
   ${hw_proto_srcs}
   ${hw_proto_hdrs})
 target_link_libraries(hw_grpc_proto
-#  ${_REFLECTION}
   ${_GRPC_GRPCPP}
-  ${_PROTOBUF_LIBPROTOBUF})
+  ${_PROTOBUF_LIBPROTOBUF}
+  ${HIREDIS_LIB}
+  ${REDIS_PLUS_PLUS_LIB})
 
 # Targets greeter_[async_](client|server)
 foreach(_target
@@ -62,6 +72,8 @@ foreach(_target
   target_link_libraries(${_target}
     hw_grpc_proto
     ${_GRPC_GRPCPP}
-    ${_PROTOBUF_LIBPROTOBUF})
+    ${_PROTOBUF_LIBPROTOBUF}
+    ${HIREDIS_LIB}
+    ${REDIS_PLUS_PLUS_LIB})
 endforeach()
 
