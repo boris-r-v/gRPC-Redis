@@ -47,6 +47,7 @@ int main(){
    	//BalanceRpcClient md( grpc::CreateChannel("127.0.0.1:5678", grpc::InsecureChannelCredentials()));
 	//BalanceRpcClient md2( grpc::CreateChannel("127.0.0.1:5678", grpc::InsecureChannelCredentials()));
 
+	int max=50*10000;
    	auto begin = std::chrono::steady_clock::now();
 	auto tr1 = std::thread(runner, 0, 10*10000);
 	auto tr2 = std::thread(runner, 10*10000, 20*10000);
