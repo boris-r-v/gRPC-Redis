@@ -8,12 +8,58 @@
 #include <CustomerLimitStorageRPC.pb.h>
 #include <CustomerLimitStorageRPC.grpc.pb.h>
 
-#include <sw/redis++/redis++.h>
+#include <coroutine>
+#include <sw/redis++/async_redis++.h>
 
-std::ostream& operator<<(std::ostream& s, cls::BalanceData const& d){
-    s<<"{\"id\":" << d.id() << ", \"name\":\"" << d.name() <<"\", \"value\":" << d.value() <<"}";
-    return s;
-}
+template <class T>
+class SetCoroAwaitable{
+    std::string const& key_, value_;
+    T redis_;
+    public:
+        SetCoroAwaitable(T& _r, std::string const& key, std::string const& value):
+            key_(key),
+            value_(value),
+            redis_(_r)
+        {
+        }
+        auto operator co_await()
+        {
+            struct Awaiter{
+                SetCoroAwaitable& awaitable_;
+                bool result_ = false;
+
+                bool await_ready() const noexcept {return false;}
+
+                void await_suspend( std::coroutine_handle<> handle) noexcept{
+                    awaitable_.redis_-> set( awaitable_.key_, awaitable_.value_, 
+                                    [this, handle](sw::redis::Future<bool> &&fut){
+                                        try{
+                                            result_ = fut.get();
+                                        }
+                                        catch (sw::redis::Error const& e ){
+                                            std::cout << "CreateBalanceCaller redis error occur " <<e.what() << std::endl;
+                                        }
+                                        handle.resume();
+                                    });
+                }
+                bool await_resume() {return result_;}
+            };
+            return Awaiter {*this};
+        }
+        
+        struct Promise {
+            SetCoroAwaitable get_return_object() { return SetCoroAwaitable { }; }
+
+            void unhandled_exception() noexcept { }
+
+            void return_void() noexcept { }
+
+            std::suspend_never initial_suspend() noexcept { return {}; }
+            std::suspend_never final_suspend() noexcept { return {}; }
+    };
+    using promise_type = Promise;
+};
+
 
 class ServerImpl{
 
@@ -35,12 +81,12 @@ class ServerImpl{
         pool_options.size = 3*num_worker; 
         pool_options.wait_timeout = std::chrono::milliseconds(100);
         pool_options.connection_lifetime = std::chrono::minutes(10);
-
+        std::cout <<"Redis num connetion in pool: "<<pool_options.size<< std::endl;
         sw::redis::ConnectionOptions conn_options;
         conn_options.host = "127.0.0.1";  // Required.
         conn_options.port = 6379; 
-        //redis_.reset( new sw::redis::Redis("tcp://127.0.0.1:6379", conn_options, pool_options ) );  //redis connection pool
-        redis_.reset( new sw::redis::Redis(conn_options, pool_options ) );  //redis connection pool
+        //redis_.reset( new sw::redis::AsyncRedis("tcp://127.0.0.1:6379", conn_options, pool_options ) );  //redis connection pool
+        redis_.reset( new sw::redis::AsyncRedis(conn_options, pool_options ) );  //redis connection pool
         	    
         server_ = builder.BuildAndStart();     // Finally assemble the server.
 	    std::cout << "Server listening on " << server_address << std::endl;
@@ -52,7 +98,7 @@ class ServerImpl{
             std::cout <<"Run " << i+1 << " worker"<< std::endl;
             pool.emplace_back( &ServerImpl::HandleRpcs, this );
         }
-         std::cout <<"Redis num connetion in pool: "<<pool_options.size<< std::endl;
+
         for (auto& x : pool){
             x.join();
         }
@@ -64,21 +110,21 @@ class ServerImpl{
         class CallerBase {
             public:
                 virtual void Proceed() = 0;  
-                CallerBase(cls::BalanceRPC::AsyncService* service, grpc::ServerCompletionQueue* cq, std::shared_ptr<sw::redis::Redis> rs):
+                CallerBase(cls::BalanceRPC::AsyncService* service, grpc::ServerCompletionQueue* cq, std::shared_ptr<sw::redis::AsyncRedis> rs):
                     service_(service), cq_(cq), status_(CREATE), redis_(rs) {}
             protected:
-                enum CallStatus { CREATE, PROCESS, FINISH };
+                enum CallStatus { CREATE, PROCESS, FINISH, WAITASYNC };
                 cls::BalanceRPC::AsyncService* service_;
                 grpc::ServerCompletionQueue* cq_;
                 grpc::ServerContext ctx_;
                 CallStatus status_; 
-                std::shared_ptr<sw::redis::Redis> redis_;
+                std::shared_ptr<sw::redis::AsyncRedis> redis_;
 
         };
 
         class CreateBalanceCaller final: public CallerBase {
 	    public:
-	        CreateBalanceCaller(cls::BalanceRPC::AsyncService* service, grpc::ServerCompletionQueue* cq, std::shared_ptr<sw::redis::Redis> rs):
+	        CreateBalanceCaller(cls::BalanceRPC::AsyncService* service, grpc::ServerCompletionQueue* cq, std::shared_ptr<sw::redis::AsyncRedis> rs):
                     CallerBase(service, cq, rs), responder_(&ctx_)
             {
                 Proceed();       
@@ -90,20 +136,24 @@ class ServerImpl{
                 } else if (status_ == PROCESS) {
                     new CreateBalanceCaller(service_, cq_, redis_ );
 
+                    status_ = WAITASYNC;
                     std::string prefix ("Create ");
                     reply_.set_message(prefix + std::to_string( request_.id() ) );
-                    //std::stringstream ss;
-                    //ss << request_;
-                    //redis_-> set( std::to_string(request_.id()), ss.str() );
+
                     std::string data;
                     request_.SerializeToString(&data);
-                    redis_-> set( std::to_string(request_.id()), data );
 
+                    const auto ret = co_await SetCoroAwaitable<std::shared_ptr<sw::redis::AsyncRedis>>(redis_, std::to_string(request_.id()), data );
+                    if ( ret ) ;//fixme do some useful with bool retuirn value
                     status_ = FINISH;
                     responder_.Finish(reply_, grpc::Status::OK, this);
-                } else {
-                    GPR_ASSERT(status_ == FINISH);
+
+                } else if(status_ == FINISH) {
+                    //GPR_ASSERT(status_ == FINISH);
                     delete this; 
+                }
+                else {
+                    std::cout << "call CreateBalanceCaller::Proceed while async from redis " << std::endl;
                 }
             }
 	    private:
@@ -115,7 +165,7 @@ class ServerImpl{
         class GetBalanceCaller final: public CallerBase {
 	    public:
 
-	        GetBalanceCaller(cls::BalanceRPC::AsyncService* service, grpc::ServerCompletionQueue* cq, std::shared_ptr<sw::redis::Redis> rs):
+	        GetBalanceCaller(cls::BalanceRPC::AsyncService* service, grpc::ServerCompletionQueue* cq, std::shared_ptr<sw::redis::AsyncRedis> rs):
                     CallerBase(service, cq, rs), responder_(&ctx_)
             {
                 Proceed();       
@@ -132,15 +182,28 @@ class ServerImpl{
                     reply_.set_name("???????????????");
                     reply_.set_value (0);
                     reply_.set_id( request_.id());
-                    
-                    auto data = redis_-> get( std::to_string(request_.id()) );
-                    reply_.ParseFromString(*data);
+                    status_ = WAITASYNC;
+                    redis_-> get( std::to_string(request_.id()),
+                                        [this](sw::redis::Future<sw::redis::OptionalString>&& fut){
+                                            try{
+                                                auto data = fut.get();
+                                                if(data) reply_.ParseFromString(*data);
+                                                else std::cout << "GetBalanceCaller data by key " << request_.id() << " not exists" << std::endl;
+                                                
+                                                status_ = FINISH;
+                                                responder_.Finish(reply_, grpc::Status::OK, this);
+                                            }
+                                            catch(sw::redis::Error const& e ){
+                                                std::cout << "GetBalanceCaller redis error occur " <<e.what() << std::endl;
+                                            }
+                                        }
+                                    );
 
-                    status_ = FINISH;
-                    responder_.Finish(reply_, grpc::Status::OK, this);
-                } else {
-                    GPR_ASSERT(status_ == FINISH);
-                    delete this; // Once in the FINISH state, deallocate ourselves (CallData).
+                } else if(status_ == FINISH) {
+                    //GPR_ASSERT(status_ == FINISH);
+                    delete this; 
+                }else {
+                    std::cout << "call GetBalanceCaller::Proceed while async from redis " << std::endl;
                 }
             }
 	    private:
@@ -168,7 +231,7 @@ class ServerImpl{
         std::unique_ptr<grpc::ServerCompletionQueue> cq_;
         cls::BalanceRPC::AsyncService service_;
         std::unique_ptr<grpc::Server> server_;
-        std::shared_ptr<sw::redis::Redis> redis_;
+        std::shared_ptr<sw::redis::AsyncRedis> redis_;
 
 };
 
