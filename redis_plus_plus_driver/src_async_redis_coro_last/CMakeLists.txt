@@ -67,7 +67,8 @@ target_link_libraries(hw_grpc_proto
 foreach(_target
   async_read async_create2
   corolib_server callback_server
-  corostd_server )
+  read_one )
+  #corostd_server )
   add_executable(${_target} "${_target}.cpp")
   target_link_libraries(${_target}
     hw_grpc_proto

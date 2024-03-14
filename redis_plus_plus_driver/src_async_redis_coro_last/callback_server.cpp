@@ -68,7 +68,7 @@ class ServerImpl{
                 CallerBase(cls::BalanceRPC::AsyncService* service, grpc::ServerCompletionQueue* cq, std::shared_ptr<sw::redis::AsyncRedis> rs):
                     service_(service), cq_(cq), status_(CREATE), redis_(rs) {}
             protected:
-                enum CallStatus { CREATE, PROCESS, FINISH, WAITASYNC };
+                enum CallStatus { CREATE, PROCESS, FINISH, WAITASYNC, READ_FINISH };
                 cls::BalanceRPC::AsyncService* service_;
                 grpc::ServerCompletionQueue* cq_;
                 grpc::ServerContext ctx_;
@@ -134,11 +134,11 @@ class ServerImpl{
 	        void Proceed() override {
 	            if (status_ == CREATE) {
                     status_ = PROCESS; // Make this instance progress to the PROCESS state.
-
+std::cout << "Proseed: CREATE" << std::endl;
                     service_->RequestGetBalance(&ctx_, &request_, &responder_, cq_, cq_,this);
                 } else if (status_ == PROCESS) {
                     new GetBalanceCaller(service_, cq_, redis_ );
-
+std::cout << "Proseed: PROCESS" << std::endl;
                     // The actual processing.
                     reply_.set_name("???????????????");
                     reply_.set_value (0);
@@ -148,9 +148,11 @@ class ServerImpl{
                                         [this](sw::redis::Future<sw::redis::OptionalString>&& fut){
                                             try{
                                                 auto data = fut.get();
-                                                if(data) reply_.ParseFromString(*data);
-                                                else std::cout << "GetBalanceCaller data by key " << request_.id() << " not exists" << std::endl;
                                                 
+                                                if(data) reply_.ParseFromString(*data);
+/*Parce here bad desing - coz lambda call in redis connection thread and cna do hard work*/
+
+                                                else std::cout << "GetBalanceCaller data by key " << request_.id() << " not exists" << std::endl;
                                                 status_ = FINISH;
                                                 responder_.Finish(reply_, grpc::Status::OK, this);
                                             }
@@ -160,8 +162,9 @@ class ServerImpl{
                                         }
                                     );
 
-                } else if(status_ == FINISH) {
+                }else if(status_ == FINISH) {
                     //GPR_ASSERT(status_ == FINISH);
+std::cout << "Proseed: FINISH" << std::endl;                    
                     delete this; 
                 }else {
                     std::cout << "call GetBalanceCaller::Proceed while async from redis " << std::endl;
