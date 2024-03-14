@@ -1,0 +1,44 @@
+cmake_minimum_required(VERSION 3.8)
+project(asio_gRPC_Redis_test)
+
+find_package(Threads REQUIRED)
+find_package(Boost 1.84.0 REQUIRED COMPONENTS system)
+
+IF(Boost_FOUND)
+  INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+  LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
+ENDIF(Boost_FOUND)
+message(STATUS "Boost include dir: ${Boost_INCLUDE_DIRS} ")
+message(STATUS "Boost library dir: ${Boost_LIBRARY_DIRS} ")
+message(STATUS "Link with folowing boost libs: ${Boost_LIBRARIES} ")
+
+add_library(boost_redis INTERFACE)
+add_library(Boost::redis ALIAS boost_redis)
+target_include_directories(boost_redis INTERFACE include)
+target_compile_features(boost_redis INTERFACE cxx_std_17)
+
+add_library(boost_redis_src STATIC boost_redis.cpp)
+target_compile_features(boost_redis_src PRIVATE cxx_std_17)
+target_link_libraries(boost_redis_src PRIVATE boost_redis)
+
+add_library(boost_asio INTERFACE)
+add_library(Boost::asio ALIAS boost_asio)
+target_include_directories(boost_asio INTERFACE include)
+target_compile_features(boost_asio INTERFACE cxx_std_17)
+
+add_library(boost_asio_src STATIC boost_asio.cpp)
+target_compile_features(boost_asio_src PRIVATE cxx_std_17)
+target_link_libraries(boost_asio_src PRIVATE boost_asio)
+
+
+
+# Targets greeter_[async_](client|server)
+foreach(_target
+  sync_server )
+  add_executable(${_target} "${_target}.cpp")
+  target_link_libraries(${_target}
+    boost_redis_src
+    boost_asio
+    ${Boost_LIBRARIES})
+endforeach()
+
