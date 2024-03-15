@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
   std::thread thread_ = std::thread(&GetBalanceClientImpl::AsyncCompleteRpc, &client);
   auto begin = std::chrono::steady_clock::now();
 
-  for (int i = 1; i < 50*10000; i++) {
+  for (int i = 1; i < 500*1000; i++) {
     //std::cout <<"Call: " << i << std::endl;
     client.get_balance( i );
   }

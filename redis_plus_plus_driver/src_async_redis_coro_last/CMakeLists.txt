@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 #add_compile_options(-Wall -Wextra -Wpedantic)
-add_compile_options(-Wall -std=c++20)
+add_compile_options(-Wall -std=c++20 -O3)
 project(asnc_gRPC_test)
 
 find_package(Threads REQUIRED)
@@ -29,7 +29,7 @@ set(_COROLIB cppcoro::cppcoro)
 message(STATUS "Using Coro library ${_COROLIB}")
 
 # Proto file
-get_filename_component(hw_proto "../../test1/protos/CustomerLimitStorageRPC.proto" ABSOLUTE)
+get_filename_component(hw_proto "../../../test1/protos/CustomerLimitStorageRPC.proto" ABSOLUTE)
 get_filename_component(hw_proto_path "${hw_proto}" PATH)
 
 # Generated sources
@@ -67,8 +67,8 @@ target_link_libraries(hw_grpc_proto
 foreach(_target
   async_read async_create2
   corolib_server callback_server
-  read_one )
-  #corostd_server )
+  read_one 
+  corostd_server )
   add_executable(${_target} "${_target}.cpp")
   target_link_libraries(${_target}
     hw_grpc_proto

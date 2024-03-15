@@ -31,7 +31,7 @@ class ServerImpl{
 
 	    builder.RegisterService(&service_);  // Register "service_" as the instance through which we'll communicate with clients. In this case it corresponds to an *asynchronous* service.
 	    cq_ = builder.AddCompletionQueue(); // Get hold of the completion queue used for the asynchronous communication with the gRPC runtime.
-        int num_worker = 4; 
+        int num_worker = 2; 
         sw::redis::ConnectionPoolOptions pool_options;
         pool_options.size = 3*num_worker; 
         pool_options.wait_timeout = std::chrono::milliseconds(100);

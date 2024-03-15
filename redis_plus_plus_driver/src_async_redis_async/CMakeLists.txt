@@ -31,7 +31,7 @@ find_library(REDIS_PLUS_PLUS_LIB redis++)
 
 
 # Proto file
-get_filename_component(hw_proto "../../test1/protos/CustomerLimitStorageRPC.proto" ABSOLUTE)
+get_filename_component(hw_proto "../../../test1/protos/CustomerLimitStorageRPC.proto" ABSOLUTE)
 get_filename_component(hw_proto_path "${hw_proto}" PATH)
 
 # Generated sources

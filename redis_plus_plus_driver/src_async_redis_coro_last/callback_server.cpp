@@ -33,7 +33,7 @@ class ServerImpl{
 	    cq_ = builder.AddCompletionQueue(); // Get hold of the completion queue used for the asynchronous communication with the gRPC runtime.
         int num_worker = 4; 
         sw::redis::ConnectionPoolOptions pool_options;
-        pool_options.size = 3*num_worker; 
+        pool_options.size = num_worker; 
         pool_options.wait_timeout = std::chrono::milliseconds(100);
         pool_options.connection_lifetime = std::chrono::minutes(10);
         std::cout <<"Redis num connetion in pool: "<<pool_options.size<< std::endl;
@@ -134,37 +134,42 @@ class ServerImpl{
 	        void Proceed() override {
 	            if (status_ == CREATE) {
                     status_ = PROCESS; // Make this instance progress to the PROCESS state.
-std::cout << "Proseed: CREATE" << std::endl;
+//std::cout << "Proseed: CREATE" << std::endl;
                     service_->RequestGetBalance(&ctx_, &request_, &responder_, cq_, cq_,this);
                 } else if (status_ == PROCESS) {
                     new GetBalanceCaller(service_, cq_, redis_ );
-std::cout << "Proseed: PROCESS" << std::endl;
+//std::cout << "Proseed: PROCESS" << std::endl;
                     // The actual processing.
                     reply_.set_name("???????????????");
                     reply_.set_value (0);
                     reply_.set_id( request_.id());
                     status_ = WAITASYNC;
-                    redis_-> get( std::to_string(request_.id()),
+                    std::string_view v = std::to_string(request_.id());
+                    redis_-> get( v,
                                         [this](sw::redis::Future<sw::redis::OptionalString>&& fut){
-                                            try{
-                                                auto data = fut.get();
-                                                
-                                                if(data) reply_.ParseFromString(*data);
-/*Parce here bad desing - coz lambda call in redis connection thread and cna do hard work*/
-
-                                                else std::cout << "GetBalanceCaller data by key " << request_.id() << " not exists" << std::endl;
-                                                status_ = FINISH;
-                                                responder_.Finish(reply_, grpc::Status::OK, this);
+                                                redis_ -> get( std::to_string(request_.id()), 
+                                                    [this](sw::redis::Future<sw::redis::OptionalString>&& fut){
+                                                        redis_ -> get( std::to_string(request_.id()), 
+                                                            [this](sw::redis::Future<sw::redis::OptionalString>&& fut){
+                                                                try{
+                                                                    auto data = fut.get();        
+                                                                    if(data) reply_.ParseFromString(*data);
+                                                                    else std::cout << "GetBalanceCaller data by key " << request_.id() << " not exists" << std::endl;
+                                                                    status_ = FINISH;
+                                                                    responder_.Finish(reply_, grpc::Status::OK, this);
+                                                                }
+                                                                catch(sw::redis::Error const& e ){
+                                                                    std::cout << "GetBalanceCaller redis error occur " <<e.what() << std::endl;
+                                                                }
+                                                            }
+                                                        );
+                                                    }
+                                                );
                                             }
-                                            catch(sw::redis::Error const& e ){
-                                                std::cout << "GetBalanceCaller redis error occur " <<e.what() << std::endl;
-                                            }
-                                        }
-                                    );
-
+                                );
                 }else if(status_ == FINISH) {
                     //GPR_ASSERT(status_ == FINISH);
-std::cout << "Proseed: FINISH" << std::endl;                    
+//std::cout << "Proseed: FINISH" << std::endl;                    
                     delete this; 
                 }else {
                     std::cout << "call GetBalanceCaller::Proceed while async from redis " << std::endl;

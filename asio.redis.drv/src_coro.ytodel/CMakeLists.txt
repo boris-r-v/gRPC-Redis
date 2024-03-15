@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 project(asnc_gRPC_test)
+#add_compile_options(-Wall -Wextra -Wpedantic -std=c++20)
+add_compile_options( --std=c++20)
 
 find_package(Threads REQUIRED)
 
@@ -18,7 +20,7 @@ find_program(_PROTOBUF_PROTOC protoc)
 find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
 
 # Proto file
-get_filename_component(hw_proto "../../test1/protos/CustomerLimitStorageRPC.proto" ABSOLUTE)
+get_filename_component(hw_proto "../../../test1/protos/CustomerLimitStorageRPC.proto" ABSOLUTE)
 get_filename_component(hw_proto_path "${hw_proto}" PATH)
 
 # Generated sources
@@ -49,13 +51,19 @@ target_link_libraries(hw_grpc_proto
   ${_GRPC_GRPCPP}
   ${_PROTOBUF_LIBPROTOBUF})
 
+#Redis libs
+find_library(HIREDIS_LIB hiredis)
+find_library(REDIS_PLUS_PLUS_LIB redis++)
+ 
 # Targets greeter_[async_](client|server)
 foreach(_target
-  async_server )
+  corostd_server )
   add_executable(${_target} "${_target}.cpp")
   target_link_libraries(${_target}
     hw_grpc_proto
     ${_GRPC_GRPCPP}
-    ${_PROTOBUF_LIBPROTOBUF})
+    ${_PROTOBUF_LIBPROTOBUF}
+    ${HIREDIS_LIB}
+    ${REDIS_PLUS_PLUS_LIB} )
 endforeach()
 
