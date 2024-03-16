@@ -76,6 +76,7 @@
         "forward_list": "cpp",
         "source_location": "cpp",
         "iomanip": "cpp",
-        "typeindex": "cpp"
+        "typeindex": "cpp",
+        "syncstream": "cpp"
     }
 }
