@@ -11,6 +11,10 @@
 #include <coroutine>
 #include <sw/redis++/async_redis++.h>
 
+#include <iostream>
+#include <syncstream>
+#include <thread>
+
 struct promise;
 struct Task: std::coroutine_handle<promise>
 {
@@ -82,6 +86,7 @@ class ServerImpl{
                 CallStatus status_; 
                 std::shared_ptr<sw::redis::AsyncRedis> redis_;
                 auto get_redis_data(std::string const& _key ){
+                    std::osyncstream(std::cout) << "get_redis_data key:<" << _key<< "> thread_id<"<< std::this_thread::get_id() <<"> \n";
                     struct awaitable
                     {
                         std::string const& key;
@@ -96,7 +101,8 @@ class ServerImpl{
                                             }
                                             catch(sw::redis::Error const& e ){
                                                 std::cout << "GetBalanceCaller redis error occur " <<e.what() << std::endl;
-                                            }                                            
+                                            }
+                                            std::osyncstream(std::cout) << "get_redis_data in callback key:<" << key<< "> thread_id<"<< std::this_thread::get_id() <<"> \n";                                            
                                             h.resume();
                                         } );
                         }
@@ -197,14 +203,17 @@ class ServerImpl{
 
                     try{
                         std::string key (std::to_string(request_.id()));
+                        std::osyncstream(std::cout) << "proceed1 key:<" << key<< "> thread_id<"<< std::this_thread::get_id() <<"> \n";
                         auto data = co_await get_redis_data( key );
+                        std::osyncstream(std::cout) << "proceed2 key:<" << key<< "> thread_id<"<< std::this_thread::get_id() <<"> \n";
                         if (!data.empty()) reply_.ParseFromString(data);
                         else std::cout << "GetBalanceCaller data by key " << request_.id() << " not exists" << std::endl;
 
 
                         std::string prefix (reply_.name()+"-create");
-
+                        std::osyncstream(std::cout) << "proceed3 key:<" << prefix << "> thread_id<"<< std::this_thread::get_id() <<"> \n";
                         auto val = co_await get_redis_data( prefix );
+                        std::osyncstream(std::cout) << "proceed4 key:<" << prefix << "> thread_id<"<< std::this_thread::get_id() <<"> \n";
                         if (!val.empty()) {
                             reply_.ParseFromString(val);
                             reply_.set_name( prefix );
