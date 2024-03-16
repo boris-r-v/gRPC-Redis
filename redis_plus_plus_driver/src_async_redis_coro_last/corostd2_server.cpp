@@ -189,7 +189,7 @@ class ServerImpl{
 
         // This can be run in multiple threads if needed.
         void HandleRpcs() {
-
+            std::osyncstream(std::cout) << "HandleRpcs thread_id<"<< std::this_thread::get_id() <<"> \n";
             new CreateBalanceCaller(&service_, cq_.get(), redis_ );
             new GetBalanceCaller(&service_, cq_.get(), redis_ );
             void* tag; 
