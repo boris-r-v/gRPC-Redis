@@ -1,0 +1,1261 @@
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.FieldOptions {
+  optional bool DateTime = 50000;
+  optional bool BalanceInfoType = 50001;
+  optional bool RecalculateProfileFlags = 50002;
+  optional bool TemplateInfoType = 50003;
+}
+
+package cls_gen;
+service CounterRPC {
+   rpc SetBalanceInfo (BalanceInfo) returns (BalanceId) {}
+   rpc GetBalanceInfo (BalanceId) returns (BalanceInfo) {}
+   rpc GetBalanceTechnicalInfo (BalanceId) returns (BalanceTechnicalInfo) {}
+}
+
+message BalanceId
+{
+    required int64  id=1;
+}
+
+enum ProtocolVersion
+{
+    MajorVersionNum=2;
+    MinorVersionNum=18;
+}
+
+enum CompatibleProtocolVersion
+{
+    MajorCompVersionNum=2;
+    MinorCompVersionNum=17;
+}
+
+enum RequestStatus
+{
+    UnknownRequestStatus = -1;
+    RequestSuccess = 0;
+    RequestSuccessPartial = 1;
+    RequestInProcess=2;
+    RequestFailed=3;
+    RequestTimeout=4;
+}
+
+enum RequestDetailStatus
+{
+    Undefined = -2;
+    UnknownDetail = -1;
+    Cancelled = 0;
+    InvalidArguments=1;
+    InvalidVersion=2;
+    BalanceNotFound=3;
+    BalancesNotProvided=4;
+    InternalError=5;
+    DatabaseError=6;
+    InitialValueNotProvided=7;
+    ClientRequestIdNotProvided=8;
+    ClassificationNotProvided=9;
+    DeactivationOffsetAndDate = 10;
+    AbsoluteAndDeltaValue=11;
+    IntAndDouble=12;
+    InvalidReservationType=13;
+    InitialValueTooOld=14;
+    AbsoluteAndDeltaValueEmpty=15;
+    ReservationAbsoluteValueNotPossible=16;
+    ReservationNotFound=17;
+    ReservationIdNotDefined=18;
+    BalancedIdNotDefined=19;
+    UnsupportedUpdateType=20;
+    InvalidInfoType=21;
+    dateOfActionInPast=22;
+    dateOfUpdateInPast=23;
+    InvalidThresholdType=24;
+    InvalidActionType=25;
+    InvalidCrossDirection=26;
+    InvalidBalanceUpdateType=27;
+    InvalidBalanceClassificationAttributeType=28;
+    NoAttributesProvided=29;
+    KeyEmpty=30;
+    SessionNotFound=31;
+    IncorrectTypeOfValue=32;
+    IntAndDoubleEmpty=33;
+    AccessDenied=34;
+    InvalidProtocolVersion=35;
+    InvalidRecalculationFactorType=36;
+    InvalidFactorMask=37;
+    DuplicateFactorMask=38;
+    TemplateFactorNotFound=39;
+    CrmRatiosOverflow=40;
+    TemplateFactorCrmRatioIsNull=41;
+    InvalidCompareType=42;
+    TemplateDecimalVsBalance=43;
+    InvalidActivationDate=44;
+    InvalidDeactivationDate=45;
+    TemplateThresholdCodeIsEmpty=46;
+    InvalidRecalculationPeriod=47;
+    BalanceTemplateNotFound=48;
+    Reserved=49;
+    TooManyRequests=50;
+    ReservationInFuture=51;
+    RecalculationPeriodRequired=52;
+    GetBalanceInFuture=53;
+    InvalidScale=54;
+    InvalidPeriodDelta=55;
+    BillingPeriodNotFound=56;
+    ExtCodeNotFound=57;
+    TooManyTemplateFactors=58;
+    InvalidTariffActionType=59;
+    InvalidTariffSignType=60;
+    ActionInfoIsEmpty=61;
+    InvalidConditionType=62;
+    InvalidRoundDateType=63;
+    InvalidCustomDateType=64;
+    InvalidLifeCycleEventType=65;
+    EnumOverflow=66;
+    InvalidDeactivationType=67;
+    InvalidDeactivationPeriodType=68;
+    InvalidConditionOccurType=69;
+    EolNotFound=70;
+    ActionRuleNotFound=71;
+    AbsoluteDateThresholdUnsupported=72;
+    TooManyConditions=73;
+    InvalidBalanceUpdateFlags=74;
+    InvalidExpirationDate=75;
+    TooManyCrmFactors=76;
+    UnsupportedCondition=77;
+    InvalidExpression=78;
+    DaysListOverflow=79;
+    IncorrectTimesListSize=80;
+    RateOrValueRequired=81;
+    InvalidActionInfo=82;
+    UnsupportedActionsRedirectionDepth=83;
+    MixedMoveAndCopyTariffActions=84;
+    UnsupportedTariffActionRate=85;
+    NegativeRateInTariffAction=86;
+    TariffActionsValuesExceedsDelta=87;
+    BalanceExpired=88;
+    BalanceNotYetActive=89;
+    InvalidDayOfPeriods=90;
+    InvalidTimeShift=91;
+    InvalidTimeZone=92;
+    BalanceTemplateIdNotSpecified=93;
+    DynamicConditionRestriction=94;
+    DuplicateRequest=95;
+    //Values 96-106 are reserved for SEE error codes
+    ReservedForSEEFunctionalBlocks=106;
+    InvalidTemplateExtType = 108;
+    BalanceFiltered=109;
+    InvalidProfileId=110;
+    ProfileSwitchingForNonPeriodicBalance=111;
+    SessionExpired=112;
+    InvalidDateTo=113;
+    ParallelTemplateSynchInProgress=114;
+    InvalidOwner=115;
+    DateOfOperationInFuture=116;
+    PlannedDateToInPast=117;
+    BalanceSuspended=118;
+    TooManyBalancesOnClassificationAttribute=119;
+    InvalidSubvalueTypeInSubvalueRecalculationInfo=120;
+    InvalidNumberOfSubvalueRecalculationInfos=121;
+    LimitsInconsistentOrMissing=122;
+    PartlyCommitNegativeValue=123;
+    PartlyCommitValueTooBig=124;
+    BalanceSubvalueNotFound=125;
+    NotEnoughLongTimeReservations=126;
+}
+
+message CompletionInfo
+{
+    optional int64                  id = 1;
+    optional RequestStatus          result = 2;
+    optional RequestDetailStatus    resultDetail = 3;
+}
+
+message Decimal
+{
+    required int64 integer = 1;
+    required int32 scale = 2;
+}
+
+message BalanceClassificationAttribute
+{
+    required BalanceClassificationAttributeType    type=1;
+    required string                                value=2;
+}
+
+enum BalanceClassificationAttributeType
+{
+    UnknownAttrType = -1;
+    PersonalAccount = 0;
+    TerminalDevice = 2;
+}
+
+message ExtAttr
+{
+    required string name=1;
+    required string value=2;
+}
+
+enum BalanceStatus
+{
+    Active = 0;
+    Suspended = 1;
+}
+
+message BalanceAttributes
+{
+    optional int32                             profileId=9;
+    optional int64                             activationDate=1 [(DateTime)=true ];
+    optional int64                             deactivationDate=2 [(DateTime)=true];
+    optional int32                             timeShift=3;
+    optional string                            templateThresholdCode=4;
+    repeated BalanceClassificationAttribute    classAttrs=5;
+    required bool                              classAttrsNull=6;
+    repeated ExtAttr                           extAttrs=7;
+    required bool                              extAttrsNull=8;
+    optional BalanceStatus                     status=10;
+    optional string                            activationCode=11;
+}
+
+message BalanceAttributesInfo
+{
+    required int64                                  balanceId=1;
+    optional BalanceAttributes                      attrs=2;
+    optional BalanceInstanceRecalculationFactors    recalcFactors=3;
+    optional RecalculationPeriod                    period=4;
+    repeated BalanceActionRule                      actionRules=5;
+    required bool                                   actionRulesNull=6;
+}
+
+message PeriodicalRecalculationFactor
+{
+    optional int64                      ratio=1;
+    required string                     extCode=2;
+    optional int64                      ExpirationDate=3 [(DateTime)=true];
+    optional int32                      ApplicationType=4;
+    optional Decimal                    Value=5;
+    optional RecalculationFactorType    type=6;
+}
+
+enum OnetimeRecalculationFactorType
+{
+    MovingIRPA = 0;
+    SwitchProfileType = 1;
+}
+
+message OnetimeRecalculationFactor
+{
+    required Decimal                           amount=1;
+    required OnetimeRecalculationFactorType    extType=2;
+}
+
+message BalanceInstanceRecalculationFactors
+{
+    repeated PeriodicalRecalculationFactor    periodicalFactors=1;
+    repeated OnetimeRecalculationFactor       onetimeFactors=2;
+    required bool                             periodicalFactorsNull=3;
+    required bool                             onetimeFactorsNull=4;
+}
+
+enum RecalculationFactorType
+{
+    InBonus = 0;
+    OutBonus=1;
+    TemplateRatio=2;
+    InstanceRatio=3;
+    InstanceInBonus=4;
+    InstanceOutBonus=5;
+}
+
+message BalanceTemplateRecalculationFactor
+{
+    required RecalculationFactorType        type=1;
+    optional Decimal                        value=2;
+    required string                         extCode=3;
+    optional string                         activationCode=4;
+}
+
+enum RecalculationPeriodType
+{
+    HourRecalc = 10;
+    DayRecalc= 11;
+    WeekRecalc=12;
+    MonthRecalc=13;
+    YearRecalc=14;
+    NonPeriodic=15;
+}
+
+message DayOfPeriod
+{
+    required int32        day=1;
+    required int32        month=2;
+}
+
+message RecalculationPeriod
+{
+    required RecalculationPeriodType    type=1;
+    optional int32                      regularPeriod=2;
+    repeated DayOfPeriod                dayOfPeriods=3;
+    optional Decimal                    periodInitialValue=4;
+}
+
+enum ConditionType
+{
+    UnknownConditionType = -1;
+    ValueConditionType = 0;
+    LifeConditionType = 1;
+    CustomConditionType = 2;
+    DateConditionType = 3;
+    CompositeConditionType = 4;
+    TrueConditionType = 5;
+    AttrConditionConditionType = 6;
+}
+
+enum ThresholdCrossDirection
+{
+    UnknownCrossDirection = -1;
+    Up = 0;
+    Down = 1;
+    Both = 2;
+}
+
+enum ThresholdCompareType
+{
+    UnknownCompareType = -1;
+    Equal = 0;
+    Cross = 1;
+    Above = 2;
+    Below = 3;
+    AboveEqual = 4;
+    BelowEqual = 5;
+    CrossEqual = 6;
+    NotCross = 7;
+    NotCrossNorEqual = 8;
+    Always = 9;
+    Multi = 10;
+    NotEqual = 11;
+}
+
+enum LifeCycleEventType
+{
+    UnknownEventType = -1;
+    BalanceCreate = 0;
+    BalanceDelete = 1;
+    BalanceReinit = 2;
+    SubvalueExpired = 3;
+}
+
+message DeltaDateThreshold
+{
+    optional ThresholdCrossDirection    crossDirection=1;
+    required ThresholdCompareType       compareType=2;
+    required int32  delta=3;
+}
+
+message LifeCycleCondition
+{
+    required LifeCycleEventType        eventType=1;
+    optional DeltaDateThreshold        dateCondition=2;
+}
+
+message CustomCondition
+{
+    required string AttrName=1;
+    required string AttrValue=2;
+}
+
+message AbsoluteDate
+{
+    required RoundDateType    roundType=1;
+    required int64            date=2 [(DateTime)=true ];
+}
+
+enum RoundDateType
+{
+    UnknownRoundDateType = -1;
+    RoundToTime = 0;
+    RoundToSecond = 1;
+    RoundToMinute = 2;
+    RoundToHour = 3;
+    RoundToDate = 4;
+    RoundToMonth = 5;
+    RoundToYear = 6;
+}
+
+message AbsoluteDateThreshold
+{
+    optional ThresholdCrossDirection    crossDirection=1;
+    required ThresholdCompareType       compareType=2;
+    required AbsoluteDate               absoluteDate=3;
+}
+
+enum CustomDateType
+{
+    UnknownDateType = -1;
+    DayOfMonth = 0;
+    DayOfWeek = 1;
+    DayOfWeekAndTime = 2;
+}
+
+message CustomDateThreshold
+{
+    optional ThresholdCrossDirection    crossDirection=1;
+    required ThresholdCompareType       compareType=2;
+    required CustomDateType             customDateType=3;
+    required bytes                      days=4;
+    repeated AbsoluteDateThreshold      times=5;
+}
+
+message AbsoluteValueThreshold
+{   
+    required ThresholdCrossDirection    crossDirection=1;
+    required ThresholdCompareType       compareType=2;
+    optional int64                      targetBalanceId=3;
+    required Decimal                    value=4;
+    optional uint32                     valueInstanceFlag=5;
+}
+
+message RelativeValueThreshold
+{   
+    required ThresholdCrossDirection    crossDirection=1;
+    required ThresholdCompareType       compareType=2;
+    optional int64                      targetBalanceId=3;
+    required int32                      value=4;
+    optional uint32                     valueInstanceFlag=5;
+}
+
+message DeltaValueThreshold
+{   
+    required ThresholdCrossDirection    crossDirection=1;
+    required ThresholdCompareType       compareType=2;
+    optional int64                      targetBalanceId=3;
+    required Decimal                    delta=4;
+    optional uint32                     valueInstanceFlag=5;
+}
+
+message ActualReservedAmountThreshold
+{   
+    required ThresholdCrossDirection    crossDirection=1;
+    required ThresholdCompareType       compareType=2;
+    optional int64                      targetBalanceId=3;
+    required Decimal                    value=4;
+    optional uint32                     valueInstanceFlag=5;
+}
+
+enum AttributeType
+{
+    UnknownAttributeType            = -1;
+    ProfileIdAttributeType          = 0;
+    DateToAttributeType             = 1;
+    DeactivationDateAttributeType   = 2;
+}
+
+message AttributeCondition
+{
+    required AttributeType    attrType = 1;
+    optional int32            checkProfileId = 2;
+}
+
+message Condition
+{
+    required ConditionType               type=1;
+    oneof condition                      
+    {                                    
+        AbsoluteValueThreshold           absoluteValueThreshold=2;
+        RelativeValueThreshold           relativeValueThreshold=3;
+        DeltaValueThreshold              deltaValueThreshold=4;
+                                         
+        LifeCycleCondition               eventCondition=5;
+        CustomCondition                  customCondition=6;
+                                         
+        AbsoluteDateThreshold            absoluteDateThreshold=7;
+        DeltaDateThreshold               deltaDateThreshold=8;
+        CustomDateThreshold              customDateThreshold=9;
+                                         
+        AttributeCondition               attrCondition = 10;
+
+        ActualReservedAmountThreshold    reservedAmountThreshold=11;
+    }
+}
+
+enum ActionType
+{
+    UnknownActionType   = -1;
+    Notify              = 3;
+    ExcludeFromProcess  = 6;
+    Exchange            = 7;
+    Delete              = 8;
+    Tariff              = 9;
+    Break               = 10;
+}
+
+message Action
+{
+    required ActionType        actionType=1;
+    optional uint32            priority=2;
+    optional string            context=3;
+}
+
+message NotifyAction
+{
+    required Action            action=1;
+    optional string            notificationDetails=2;
+    required int32             notificationType=3;
+}
+
+message ExchangeAction
+{
+    required Action    action=1;
+    required int64     targetBalanceId=2;
+}
+
+message DeleteAction
+{
+    required Action    action=1;
+    optional int64     targetBalanceId=2;
+}
+
+enum TariffActionType
+{
+    UnknownTariffActionType = -1;
+    Move = 0;
+    Copy = 1;
+    Local = 2;
+}
+
+enum TariffSignType
+{
+    UnknownTariffSignType = -1;
+    Original = 0;
+    Positive = 1;
+    Negative = 2;
+    Inverted = 3;
+}
+
+
+message TariffAction
+{
+    required Action              action=1;
+    required TariffActionType    tariffType=2;
+    required TariffSignType      signType=3;
+    optional int64               targetBalanceId=4;
+    optional int64               rate=5;
+    optional Decimal             value=6;
+}
+
+message ActionInfo
+{
+    oneof action
+    {
+        Action            simpleAction=1;
+        NotifyAction      notifyAction=2;
+        ExchangeAction    exchangeAction=3;
+        DeleteAction      deleteAction=4;
+        TariffAction      tariffAction=5;
+    }
+}
+
+enum ConditionOccurType
+{
+    UnknownOccurType = -1;
+    OnReserve = 0;
+    OnCommit = 1;
+    OnFullCommit = 2;
+    OnGet = 3;
+    OnLifeCycle = 4;
+}
+
+message BalanceActionRule
+{
+    required string                ruleCode=1;
+    repeated ConditionOccurType    occurTypes=2 [packed=true];
+    optional string                activationCode=3;
+    required bytes                 expression=4;
+    repeated Condition             conditions=5;
+    repeated ActionInfo            actions=6;
+    repeated string                operationKeys=7;
+}
+
+message BalanceAbsoluteValue
+{
+    optional int64      dateFrom=2 [(DateTime)=true ];
+    optional int64      dateTo=3 [(DateTime)=true ];
+    required Decimal    value=4;
+}
+
+message BalanceAbsoluteSubvalue
+{
+    required BalanceUpdateType      subvalueType=1;
+    required BalanceAbsoluteValue   balanceAbsoluteValue=2;
+    optional string                 context=3;
+};
+
+message BalanceDeltaValue
+{
+    required Decimal    value=2;
+    optional int64      dateTo=3 [(DateTime)=true ];
+}
+
+message InternalAttr
+{
+    required string name=1;
+    required string value=2;
+}
+
+message ParentReservationData
+{
+    required Decimal    initialValue=1;
+    required Decimal    committedAmount=2;
+    required Decimal    actualReservedAmount=3;
+}
+
+message InstanceProfileInfo
+{
+    required int32                      profileId=1;
+    optional int64                      activationDate=2 [(DateTime)=true ];
+    optional int64                      deactivationDate=3 [(DateTime)=true ];
+    optional RecalculationPeriodInfo    recalculationPeriod=4;
+}
+
+message BalanceInfo
+{
+    required int64                                  id=1;
+    optional int32                                  templateId=2;
+    optional int32                                  version=3;
+    optional int32                                  profileId=4;
+    optional int32                                  ownerId=5;
+}
+
+message BalanceTechnicalInfo
+{
+    required int64                                  id=1;
+    optional int32                                  templateId=2;
+    optional int32                                  version=3;
+    optional int32                                  profileId=15;
+    optional int32                                  ownerId=20;
+
+    optional BalanceAttributes                      attrs=4;
+    optional BalanceInstanceRecalculationFactors    instanceRecalcFactors=5;
+    repeated BalanceTemplateRecalculationFactor     templateRecalcFactors=6;
+    optional RecalculationPeriod                    period=7;
+    repeated BalanceActionRule                      instanceActionRules=8;
+    repeated BalanceActionRule                      templateActionRules=9;
+
+    repeated int64                                  parentResevationId=10 [packed=true];
+    optional Decimal                                totalReservedAmount=11;
+
+    repeated BalanceAbsoluteValue                   values=12;
+
+    repeated InternalAttr                           internalAttrs=13;
+
+    required uint32                                 infoType=14 [(BalanceInfoType)=true];
+
+    repeated InstanceProfileInfo                    otherProfileInfos=17;
+
+    optional int64                                  lastValueUpdateDate=18 [(DateTime)=true];
+
+    optional BalanceTemplateInfo                    templateInfo=19;
+
+    repeated BalanceAbsoluteValue                   expiredPayments=21;
+    repeated BalanceAbsoluteValue                   promisedPayments=22;
+
+    optional ParentReservationData                  aggregatedReservationData=23;
+
+    repeated BalanceAbsoluteSubvalue                subvalues=24;
+
+    optional uint32                                 isNewerPeriod=25;
+
+    optional Decimal                                periodInitialValue=26;
+}
+
+message BalanceEvent
+{
+    required int64            balanceId=1;
+    repeated Condition        conditions=2;
+    required bytes            expression=3;
+    repeated ActionInfo       actions=4;
+}
+
+message BalanceCompletionInfo
+{
+    required CompletionInfo          complInfo   = 1;
+    optional BalanceTechnicalInfo    balanceInfo = 2;
+    repeated BalanceEvent            events      = 3;
+    optional BalanceValueState       valueState  = 4;
+}
+
+message BalanceEventCompletionInfo
+{
+    required CompletionInfo    complInfo = 1;
+    repeated BalanceEvent      events = 2;
+}
+
+message BalanceValueState
+{
+    optional int64                    balanceId=1;
+    required int64                    dateOfUpdate = 2 [(DateTime)=true ];
+    optional int64                    parentReservationId = 3;
+    required BalanceAbsoluteValue     value = 4;
+    required Decimal                  totalReservedValue = 5;
+    repeated BalanceEvent             events = 6;
+    optional BalanceAbsoluteValue     oldValue = 7;
+    optional Decimal                  movedAmount = 8;
+};
+
+message BalanceUpdateCompletionInfo
+{
+    required CompletionInfo       complInfo = 1;
+    optional BalanceValueState    balanceState = 2;
+    required BalanceInfo          balance=3;
+    optional ReservationType      reservationType = 4;
+}
+
+message BalanceTemplateCompletionInfo
+{
+    required CompletionInfo         complInfo = 1;
+    optional BalanceTemplateInfo    templateInfo=2;
+}
+
+message TemplateBaseInfo
+{
+    required CompletionInfo         complInfo = 1;
+    required string                 extCode = 2;
+}
+
+message BalanceReservation
+{
+    required int64      balanceInstanceId=1;
+    optional Decimal    initialValue=2;
+    optional Decimal    commitedReservedValue=3;
+    required Decimal    ActualReservedValue=4;
+}
+
+message BalanceAttributeSetOptions
+{
+    optional int32    setFlags=1;
+}
+
+message BalanceReservationCompletionInfo
+{
+    required CompletionInfo        complInfo = 1;
+    optional int64                 startDate = 2  [(DateTime)=true ];
+    optional int64                 endDate = 3  [(DateTime)=true ];
+    repeated BalanceReservation    reservations = 4;
+}
+
+message BalanceProcessCompletionInfo
+{
+    required CompletionInfo       complInfo = 1;
+    optional BalanceValueState    balanceProcessState = 2;
+    required BalanceInfo          balance = 3;
+    optional BalanceAttributes    attrs = 5;
+}
+
+message FileNameResultInfo
+{
+    required string    fileName=1;
+    optional string    fileNamePath=2;
+    optional string    fileNameNetPath=3;
+    optional int64     fileSize=4;
+    optional int32     partsCount=5;
+    optional int32     partNumber=6;
+}
+
+message ExportCompletionInfo
+{
+    required CompletionInfo        complInfo = 1;
+    repeated FileNameResultInfo    tdFileName=2;
+    repeated FileNameResultInfo    paFileName=3;
+    repeated FileNameResultInfo    balancesFileName=4;
+}
+
+message RefreshTemplatesCompletionInfo
+{
+    required CompletionInfo       complInfo = 1;
+    repeated BalanceActionRule    actionRules=2;
+}
+
+message ResultInfo
+{
+    oneof info
+    {
+        BalanceCompletionInfo               balanceCompletionInfo = 4;
+        BalanceEventCompletionInfo          balanceEventCompletionInfo = 5;
+        BalanceUpdateCompletionInfo         balanceUpdateCompletionInfo = 6;
+        BalanceTemplateCompletionInfo       balanceTemplateCompletionInfo = 7;
+        BalanceReservationCompletionInfo    balanceReservationCompletionInfo = 8;
+        BalanceProcessCompletionInfo        balanceProcessCompletionInfo = 9;
+        ExportCompletionInfo                exportCompletionInfo=10;
+        CompletionInfo                      completionInfo=11;
+        RefreshTemplatesCompletionInfo      refreshTemplatesCompletionInfo=12;
+        TemplateBaseInfo                    templateBaseInfo = 13;
+    }
+}
+
+message DebugInfo
+{
+    optional double       timeWait=1;
+    optional double       timeProc=2;
+    repeated int32        queueSize=3;
+    optional string       info=4;
+}
+
+message BalanceSearchOptions
+{
+    optional int32     flags=1;
+    optional int32     searchFlags=2;
+    optional int64     dateOfSearch=3 [(DateTime)=true ];
+    optional int64     dateOfStartSearch=4  [(DateTime)=true ];
+    repeated int32     templateIds=5;
+    optional int64     parentReservationId=6;
+    repeated string    activationCodes=7;
+}
+
+message FindBalance
+{
+    required int32                             infoType=1 [(BalanceInfoType)=true];
+    repeated BalanceClassificationAttribute    classAttrs=2;
+    optional bytes                             expression=3;
+    optional BalanceSearchOptions              searchOptions=4;
+}
+
+message GetBalance
+{
+    required int32                   infoType=1 [(BalanceInfoType)=true];
+    repeated int64                   balanceIds=2;
+    optional BalanceSearchOptions    searchOptions=3;
+}
+
+enum ReservationType
+{
+    UnknownReservationType = -1;
+    NoCommit = 0;
+    Commit=1;
+    FullCommit=2;
+    PartlyCommit=3;
+}
+
+enum BalanceUpdateType
+{
+    UnknownUpdateType = -1;
+    Common = 0;
+    PromisedPayment=1;
+    ExpiredPayment=2;
+    AutoRefill=3;
+    LongTimeReservation=4;
+}
+
+enum SubvalueOperation
+{
+    CreateSubvalue = 0;
+    DeleteSubvalue = 1;
+    UpdateSubvalue = 2;
+    UseSubvalue    = 3;
+}
+
+message BalanceUpdateData
+{
+    optional int64                startDate=1 [(DateTime)=true ];
+    optional int64                endDate=2 [(DateTime)=true ];
+    optional string               context=3;
+    optional SubvalueOperation    subOperation=4;
+};
+
+message BalanceUpdateRequest
+{
+    required BalanceUpdateType       updateType=1;
+    optional int64                   flags=2;
+    optional BalanceInfo             balance=3;
+    optional BalanceAbsoluteValue    initialValue=4;
+
+    oneof    value
+    {
+        BalanceAbsoluteValue         absoluteValue=5;
+        BalanceDeltaValue            deltaValue=6;
+    }
+
+    optional int64                   deactivationDate=7 [(DateTime)=true ];
+    optional int64                   deactivationOffset=8;
+    optional BalanceUpdateData       extData=9;
+    repeated string                  operationKeys=10;
+}
+
+enum DeactivationPeriodType
+{
+    UnknownPeriodType = -1;
+    HourDeact = 0;
+    DayDeact=1;
+    MonthDeact=2;
+    RecalcPeriod=3;
+}
+
+enum DeactivationType
+{
+    UnknownDeactivationType = -1;
+    Absolute = 0;
+    Relative =1;
+}
+
+message DeactivationPeriod
+{
+    required DeactivationPeriodType    type=1;
+    optional uint32                    duration=2;
+}
+
+message DeactivationPeriodInfo
+{
+    required string                    activationCode=1;
+    required DeactivationType          deactivationType=2;
+    optional int64                     deactivationDate=3 [(DateTime)=true ];
+    optional DeactivationPeriod        period=4;
+}
+
+enum RecalculationType
+{
+    UnknownRecalculationType = -1;
+    TemplatePeriod = 0;
+    InstancePeriod=1;
+    NonPeriodicRecalcType=2;
+}
+
+message RecalculationPeriodInfo
+{
+    required RecalculationType      recalcType=1;
+    optional RecalculationPeriod    period=2;
+}
+
+enum BalanceSearchFlags
+{
+    Time        = 1;
+    Data        = 2;
+    Item        = 4;
+    Money       = 8;
+    Limit       = 16;
+}
+
+message SubvalueRecalculationInfo
+{
+    required BalanceUpdateType        subvalueType=1;
+    optional int64                    baseInitialValue=2;
+    required int64                    moveRatio=3;
+    optional int64                    moveLimitRatio=4;
+}
+
+message TemplateProfileInfo
+{
+    required int32                                 profileId=1;
+    optional int64                                 baseInitialValue=2;
+    optional int64                                 moveRatio=3;
+    optional int64                                 moveLimitRatio=4;
+    repeated DeactivationPeriodInfo                deactivationInfos=5;
+    optional RecalculationPeriodInfo               recalculationPeriod=6;
+    repeated BalanceTemplateRecalculationFactor    recalculationFactors=7;
+    repeated SubvalueRecalculationInfo             subvalueInfos=8;
+}
+
+message BalanceTemplateInfo
+{
+    required int32                                 templateId=1;
+    required string                                extCode=2;
+    repeated DeactivationPeriodInfo                deactivationInfos=3;
+    optional int64                                 baseInitialValue=4;
+    required int32                                 balanceValueScale=5;
+    optional int64                                 moveRatio=6;
+    optional int64                                 moveLimitRatio=7;
+    optional RecalculationPeriodInfo               recalculationPeriod=8;
+    repeated BalanceTemplateRecalculationFactor    recalculationFactors=9;
+    repeated BalanceActionRule                     actionRules=10;
+    required BalanceSearchFlags                    extType=11;
+    repeated TemplateProfileInfo                   alternativeProfileInfos=12;
+    optional string                                extName=13;
+    required string                                metricUnitCode=14;
+    repeated SubvalueRecalculationInfo             subvalueInfos=15;
+}
+
+message BalanceReserveOptions
+{
+    optional int64    dateOfPreviousReservation=1 [(DateTime)=true ];
+}
+
+message ReserveBalance
+{
+    required ReservationType          reservationType=1;
+    required int64                    dateOfReservation=2 [(DateTime)=true ];
+    optional int64                    parentReservationId=3;
+    optional int64                    expirationDate=4 [(DateTime)=true ];
+    repeated BalanceUpdateRequest     reservations=5;
+    optional BalanceReserveOptions    reserveOptions=6;
+ }
+
+message SetBalance
+{
+    optional int64                    dateOfUpdate = 1 [(DateTime)=true ];
+    repeated BalanceUpdateRequest     balances = 2;
+    required bool                     isTransacted = 3;
+}
+
+message BalanceCreateOptions
+{
+    optional int32    ownerId = 1;
+}
+
+message CreateBalance
+{
+    required int64                            count=1;
+    required int32                            templateId=2;
+    optional Decimal                          initialValue=3;
+    repeated BalanceActionRule                actionRules=4;
+    optional BalanceAttributes                attrs=5;
+    repeated PeriodicalRecalculationFactor    recalcFactors=6;
+    optional RecalculationPeriod              period=7;
+    optional BalanceCreateOptions             createOptions = 8;
+}
+
+message SetBalanceAttribute
+{
+    repeated BalanceAttributesInfo            attrInfos=1;
+    optional BalanceAttributes                attrs=2;
+    optional BalanceAttributeSetOptions       setOptions=3;
+}
+
+message ResetBalanceAttribute
+{
+    repeated int64                                 balanceIds=1;
+    repeated BalanceClassificationAttributeType    attrTypes=2;
+    repeated string                                extAttrs=3;
+    repeated string                                recalcExtCodes=4;
+    repeated OnetimeRecalculationFactorType        recalcExtTypes=5;
+}
+
+message BalanceDeleteOptions
+{
+    optional int32    deleteFlags=1;
+}
+
+
+message DeleteBalance
+{
+    repeated int64                   balanceIds=1;
+    optional int64                   dateOfAction=3 [(DateTime)=true ];
+    optional BalanceDeleteOptions    deleteOptions=4;
+}
+
+message CommitReservation
+{
+    repeated int64    reservationIds=1;
+    optional bool     isTransacted=2;
+}
+
+message RollbackReservation
+{
+    repeated int64            reservationIds=1;
+    optional bool            isTransacted=2;
+}
+
+message ClientEndPointInfo
+{
+    required int32    sourceContextId=1;
+    required int64    clientSessionId=2;
+}
+
+message RefreshBalanceTemplate
+{
+    required BalanceTemplateInfo    templateInfo=1;
+    optional int32                  isLastCommand=2 [default=0];
+}
+
+message GetBalanceTemplate
+{
+    repeated int32            templateIds=1;
+    optional uint32           infoType=2 [(TemplateInfoType)=true];
+}
+
+message GetActionData
+{
+    optional int64        count=1;
+    //required ActionType        action=2;
+    required int32        action=2;
+}
+
+message ExportBalances
+{
+    optional int64         dateOfSearch=1 [(DateTime)=true ];
+    required string        balancesFileName=2;
+    required string        tdFileName=3;
+    required string        paFileName=4;
+}
+
+message GetBalanceTemplateList
+{
+    optional int64        dateOfSearch=1 [(DateTime)=true ];
+}
+
+message GetReservation
+{       
+    repeated int64            parentReservationIds=1;
+}
+
+message SetNotificationOptions
+{
+    optional int32            connectionFlags=1;
+}
+
+message SetNotificationCallback
+{
+    optional SetNotificationOptions        options=1;
+}
+
+message BalanceProfileRecalculationRequest
+{
+    required BalanceInfo                            balance=1;
+    optional int32                                  updateFlags=2 [(RecalculateProfileFlags)=true];
+    optional int64                                  plannedDateTo=3 [(DateTime)=true ];
+    optional int32                                  newProfileId=4;
+    optional int64                                  dateOfOperation=5 [(DateTime)=true ];
+    optional BalanceInstanceRecalculationFactors    instanceRecalcFactors=6;
+}
+
+message RecalculateBalanceProfile 
+{
+    repeated BalanceProfileRecalculationRequest  requestData=1;
+}
+
+message BackgroundProcessTask
+{
+    required int64        id=1;
+    required uint64       requestId=2;
+    required string       object=3;
+    required int32        handlerId=4;
+    required int64        currentPosition=5;
+    required int64        endPosition=6;
+    required int32        retryCount=7;
+    required int64        lastActivity=8 [(DateTime)=true ];
+    required int32        type=9;
+    required bool         lastTask=10;
+    required bool         processingStarted=11;
+    required bool         hadDbTimeoutErrors=12;
+    required int64        requestStartTime=13 [(DateTime)=true ];
+}
+
+message BackgroundProcessTasksJob
+{
+    required int64                    minId=1;
+    required int64                    maxId=2;
+    required int32                    handlerId=4;
+    repeated BackgroundProcessTask    tasks=3;
+}
+
+message ExtOperationInfo
+{
+    required string        abstractOperationCode=1;
+    required string        operationId=2;
+}
+message ClientContext
+{
+    required ClientEndPointInfo      clientEndPoint=1;
+    optional string                  traceId=2;
+    optional int64                   priority=3;
+    optional ExtOperationInfo        extOperation=4;
+}
+
+message BusinessRequest
+{
+    required int64                   clientRequestId=1;
+    required ClientContext           context=2;
+    required uint32                  handlerId=3;
+
+    oneof requestMessage
+    {
+        FindBalance                  findBalance=4;
+        GetBalance                   getBalance=5;
+        ReserveBalance               reserveBalance=6;
+        SetBalance                   setBalance=7;
+        CreateBalance                createBalance=8;
+        SetBalanceAttribute          setBalanceAttribute=9;
+        ResetBalanceAttribute        resetBalanceAttribute=10;
+        DeleteBalance                deleteBalance=11;
+        CommitReservation            commitReservation=12;
+        RollbackReservation          rollbackReservation=13;
+        RefreshBalanceTemplate       refreshBalanceTemplate=14;
+        GetBalanceTemplate           getBalanceTemplate=15;
+        GetActionData                getActionData=16;
+        ExportBalances               exportBalances=17;
+        GetBalanceTemplateList       getBalanceTemplateList=18;
+        GetReservation               getReservation=19;
+        SetNotificationCallback      setNotificationCallback=20;
+        RecalculateBalanceProfile    recalculateBalanceProfile=24;
+        BackgroundProcessTasksJob    backgroundProcessTasks=22;
+        bytes                        rawData=23;
+    }
+
+    optional uint32                  commandTimeout=25;
+}
+
+message BusinessResponse
+{
+    required int64                  clientRequestId=2;
+    optional string                 traceId=3;
+    required RequestStatus          result = 4;
+    optional RequestDetailStatus    resultDetail = 5;
+    repeated ResultInfo             resultInfo= 6;
+    optional DebugInfo              debugInfo=7;
+    optional bytes                  rawData=8;
+}
+
+message Bind
+{
+    required int32     majorProtVer=1;
+    required int32     minorProtVer=2;
+    required string    userName=3;
+    required string    password=4;
+}
+
+message BindAck
+{
+    required RequestStatus          status=1;
+    optional RequestDetailStatus    detail=2;
+}
+
+message Unbind
+{
+    optional RequestStatus status=1;
+    optional string        ambiguousIp=2;
+}
+
+message UnbindAck
+{
+    required RequestStatus status=1;
+}
+
+message KeepAlive
+{
+}
+
+message KeepAliveAck
+{
+}
+
+message Pause
+{
+}
+
+message Resume
+{
+}
+
+message ProtocolMessage
+{
+    oneof message
+    {
+        BusinessRequest     businessRequest=1;
+        BusinessResponse    businessResponse=2;
+        Bind                bind=3;
+        BindAck             bindAck=4;
+        Unbind              unbind=5;
+        UnbindAck           unbindAck=6;
+        KeepAlive           keepAlive=7;
+        KeepAliveAck        keepAliveAck=8;
+        Pause               pause=9;
+        Resume              resume=10;
+    }
+}

@@ -5,7 +5,7 @@ add_compile_options( --std=c++20)
 
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
-find_package(Boost 1.84.0 REQUIRED COMPONENTS headers system coroutine)
+find_package(Boost 1.84.0 REQUIRED COMPONENTS headers system coroutine )
 
 IF(Boost_FOUND)
   INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
@@ -26,6 +26,7 @@ target_compile_definitions(
     PUBLIC
     BOOST_ASIO_SEPARATE_COMPILATION
 )
+
 find_package(Protobuf REQUIRED)
 set(PROTOBUF_LIB protobuf::libprotobuf)
 message(STATUS "Protobuf version ${Protobuf_VERSION}")
@@ -67,6 +68,14 @@ target_link_libraries(hw_grpc_proto
   ${GRPC_GRPCPP}
   ${PROTOBUF_LIB})
 
+add_library(all_obj_ar STATIC 
+  ${PROJECT_SOURCE_DIR}/cpp20_intro.cpp
+)
+target_link_libraries(all_obj_ar
+  boost_compiled
+  ${Boost_LIBRARIES})
+
+
 #Redis libs
 find_library(HIREDIS_LIB hiredis)
 find_library(REDIS_PLUS_PLUS_LIB redis++)
@@ -74,20 +83,18 @@ find_library(REDIS_PLUS_PLUS_LIB redis++)
 
 # Targets greeter_[async_](client|server)
 foreach(_target
-  sync_server
-  boost_spawn 
-  callback_server)
+
+  main)
   add_executable(${_target} "${_target}.cpp")
   target_link_libraries(${_target}
     boost_compiled
     hw_grpc_proto
+    all_obj_ar
     ssl
     crypto    
     ${Boost_LIBRARIES}
     ${GRPC_GRPCPP}
     ${PROTOBUF_LIB} 
-    ${HIREDIS_LIB}
-    ${REDIS_PLUS_PLUS_LIB}
       )
 endforeach()
 

@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 3.8)
 #add_compile_options(-Wall -Wextra -Wpedantic)
-add_compile_options(-Wall -std=c++2a )
-project(asnc_gRPC_test)
+add_compile_options(-Wall -std=c++20 )
+project(PreProd_CLS)
 
 find_package(Threads REQUIRED)
-
 option(protobuf_MODULE_COMPATIBLE TRUE)
 find_package(Protobuf REQUIRED)
 set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
@@ -23,20 +22,15 @@ find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
 find_library(HIREDIS_LIB hiredis)
 find_library(REDIS_PLUS_PLUS_LIB redis++)
 
-#Coro lib
-find_package(cppcoro REQUIRED)
-set(_COROLIB cppcoro::cppcoro)
-message(STATUS "Using Coro library ${_COROLIB}")
-
 # Proto file
-get_filename_component(hw_proto "../../../test1/protos/CustomerLimitStorageRPC.proto" ABSOLUTE)
+get_filename_component(hw_proto "proto/CLS.proto" ABSOLUTE)
 get_filename_component(hw_proto_path "${hw_proto}" PATH)
 
 # Generated sources
-set(hw_proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/CustomerLimitStorageRPC.pb.cc")
-set(hw_proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/CustomerLimitStorageRPC.pb.h")
-set(hw_grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/CustomerLimitStorageRPC.grpc.pb.cc")
-set(hw_grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/CustomerLimitStorageRPC.grpc.pb.h")
+set(hw_proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/CLS.pb.cc")
+set(hw_proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/CLS.pb.h")
+set(hw_grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/CLS.grpc.pb.cc")
+set(hw_grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/CLS.grpc.pb.h")
 add_custom_command(
       OUTPUT "${hw_proto_srcs}" "${hw_proto_hdrs}" "${hw_grpc_srcs}" "${hw_grpc_hdrs}"
       COMMAND ${_PROTOBUF_PROTOC}
@@ -49,6 +43,8 @@ add_custom_command(
 
 # Include generated *.pb.h files
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+include_directories("cls_core")
+include_directories("cls_bl")
 
 # hw_grpc_proto
 add_library(hw_grpc_proto
@@ -58,25 +54,30 @@ add_library(hw_grpc_proto
   ${hw_proto_hdrs})
 target_link_libraries(hw_grpc_proto
   ${_GRPC_GRPCPP}
-  ${_PROTOBUF_LIBPROTOBUF}
-  ${HIREDIS_LIB}
-  ${REDIS_PLUS_PLUS_LIB}
-  ${_COROLIB})
+  ${_PROTOBUF_LIBPROTOBUF})
+
+file(GLOB sources "cls_core/*.h" "cls_core/*.cpp" "cls_core/*.hpp" "main.cpp" "cls_bl/*.h" "cls_bl/*.cpp")
 
 # Targets greeter_[async_](client|server)
-foreach(_target
-  async_read async_create2
-  corolib_server callback_server
-  read_one 
-  corostd_server
-  corostd2_server )
-  add_executable(${_target} "${_target}.cpp")
-  target_link_libraries(${_target}
+add_executable(main ${sources})
+target_link_libraries(main
     hw_grpc_proto
     ${_GRPC_GRPCPP}
     ${_PROTOBUF_LIBPROTOBUF}
     ${HIREDIS_LIB}
-    ${REDIS_PLUS_PLUS_LIB}
-    ${_COROLIB})
+    ${REDIS_PLUS_PLUS_LIB} )
+
+
+foreach(_target
+    set_balance_info
+   )
+  add_executable(${_target} "${_target}.cpp")
+  target_link_libraries(${_target}
+  hw_grpc_proto
+  ${_GRPC_GRPCPP}
+  ${_PROTOBUF_LIBPROTOBUF}
+  ${HIREDIS_LIB}
+  ${REDIS_PLUS_PLUS_LIB} )
 endforeach()
+
 
