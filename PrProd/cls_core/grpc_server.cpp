@@ -27,8 +27,8 @@ void ServerImpl::run(){
 void ServerImpl::HandleRpcs(){
     std::cout << "HandleRpcs thread_id<"<< std::this_thread::get_id() <<"> \n";
     new cls_bl::SetBalanceInfo(&service_, cq_.get() );
-    new cls_bl::GetBalanceInfo(&service_, cq_.get() );
-    new cls_bl::GetBalanceTechnicalInfo(&service_, cq_.get() );
+    //new cls_bl::GetBalanceInfo(&service_, cq_.get() );
+    //new cls_bl::GetBalanceTechnicalInfo(&service_, cq_.get() );
     void* tag; 
     bool ok;
     while (isWorking) {

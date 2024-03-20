@@ -1,14 +1,29 @@
 #include <caller_base.h>
 
-cls_core::CallerBase::CallerBase( cls_gen::CounterRPC::AsyncService* service, grpc::ServerCompletionQueue* cq ):
+cls_core::CallerBase::CallerBase( cls_gen::CounterRPC::AsyncService* service, grpc::ServerCompletionQueue* cq )
+        :service_( service )
+        ,cq_( cq )
+        ,status_( Status::PROCESS )
+        //,redis_(cls_core::redis_pool::instance().pop()) - this to work connection pool
+{
+        sw::redis::ConnectionOptions conn_options;
+        conn_options.host = "127.0.0.1";  // Required.
+        conn_options.port = 6379; 
+        sw::redis::ConnectionPoolOptions pool_options;
+        pool_options.size = 1; 
+        pool_options.wait_timeout = std::chrono::milliseconds(100);
+        pool_options.connection_lifetime = std::chrono::minutes(10);
+        
+        redis_.reset( new sw::redis::CoRedis(conn_options, pool_options) );
+}
+cls_core::CallerBase::CallerBase( cls_gen::CounterRPC::AsyncService* service, grpc::ServerCompletionQueue* cq, redis_t _rds):
         service_( service ),
         cq_( cq ),
         status_( Status::PROCESS ),
-        redis_(cls_core::redis_pool::instance().pop())
+        redis_(_rds)
 {
- 
 }
 
 cls_core::CallerBase::~CallerBase(){
-        cls_core::redis_pool::instance().push( redis_ );
+//        cls_core::redis_pool::instance().push( redis_ );  - this to work connection pool      
 }

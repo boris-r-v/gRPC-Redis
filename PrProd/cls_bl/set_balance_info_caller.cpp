@@ -7,10 +7,17 @@ cls_bl::SetBalanceInfo::SetBalanceInfo(cls_gen::CounterRPC::AsyncService* _as, g
         service_->RequestSetBalanceInfo(&ctx_, &request_, &responder_, cq_, cq_,this);
 }
 
+cls_bl::SetBalanceInfo::SetBalanceInfo(cls_gen::CounterRPC::AsyncService* _as, grpc::ServerCompletionQueue* _cq, cls_core::redis_t _rd ):
+        CallerBase(_as, _cq, _rd),
+        responder_(&ctx_)
+{
+        service_->RequestSetBalanceInfo(&ctx_, &request_, &responder_, cq_, cq_,this);
+}
+
 cls_core::Task cls_bl::SetBalanceInfo::Proceed() {
         if( Status::PROCESS == status_){
-                std::cout << "Status::PROCESS\n";
-                new SetBalanceInfo(service_, cq_ );
+
+                new SetBalanceInfo(service_, cq_, redis_ );
 
                 std::string key ("key:");
                 key += std::to_string(request_.id());
@@ -18,16 +25,14 @@ cls_core::Task cls_bl::SetBalanceInfo::Proceed() {
                 request_.SerializeToString(&data);
 
                 auto ret = co_await redis_->set(key, data );
-
-                std::cout <<"set ret " << std::boolalpha<< ret << std::endl;
-
-                reply_.set_id(request_.id());
-                                                        
                 status_ = Status::FINISH;
-                responder_.Finish(reply_, grpc::Status::OK, this);                
+                reply_.set_id(request_.id());
+                if ( ret )        
+                        responder_.Finish(reply_, grpc::Status::OK, this);                
+                else
+                        responder_.Finish(reply_, grpc::Status::CANCELLED, this);      
         }
         else{
-                std::cout << "Status::FINISH\n";
                 delete this;
         }        
         co_return ;

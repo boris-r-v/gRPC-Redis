@@ -69,7 +69,8 @@ target_link_libraries(cls_server
 
 
 foreach(_target
-    set_balance_info
+    set_sync_one
+    set_async
    )
   add_executable(${_target} "${_target}.cpp")
   target_link_libraries(${_target}

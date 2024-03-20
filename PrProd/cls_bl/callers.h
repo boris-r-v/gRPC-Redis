@@ -14,6 +14,7 @@ namespace cls_bl
     class SetBalanceInfo final: public cls_core::CallerBase {
 	    public:
             SetBalanceInfo(cls_gen::CounterRPC::AsyncService*, grpc::ServerCompletionQueue*);
+            SetBalanceInfo(cls_gen::CounterRPC::AsyncService*, grpc::ServerCompletionQueue*, cls_core::redis_t );
             virtual cls_core::Task Proceed() override;
 
         private:
@@ -25,6 +26,7 @@ namespace cls_bl
     class GetBalanceInfo final: public cls_core::CallerBase {
 	    public:
             GetBalanceInfo(cls_gen::CounterRPC::AsyncService*, grpc::ServerCompletionQueue*);
+            GetBalanceInfo(cls_gen::CounterRPC::AsyncService*, grpc::ServerCompletionQueue*, cls_core::redis_t);
             virtual cls_core::Task Proceed() override;
 
         private:
@@ -36,6 +38,7 @@ namespace cls_bl
     class GetBalanceTechnicalInfo final: public cls_core::CallerBase {
 	    public:
             GetBalanceTechnicalInfo(cls_gen::CounterRPC::AsyncService*, grpc::ServerCompletionQueue*);
+            GetBalanceTechnicalInfo(cls_gen::CounterRPC::AsyncService*, grpc::ServerCompletionQueue*, cls_core::redis_t );
             virtual cls_core::Task Proceed() override;
             
         private:

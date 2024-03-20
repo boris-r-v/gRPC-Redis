@@ -25,6 +25,7 @@ namespace cls_core
     class CallerBase{
         public:
             CallerBase(cls_gen::CounterRPC::AsyncService*, grpc::ServerCompletionQueue*);
+            CallerBase(cls_gen::CounterRPC::AsyncService*, grpc::ServerCompletionQueue*, redis_t );
             ~CallerBase();
             virtual Task Proceed() = 0;
 
