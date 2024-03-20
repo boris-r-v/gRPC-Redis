@@ -1,7 +1,11 @@
-#include <coroutine>
+#ifndef _caller_base_define_
+#define _caller_base_define_
 
+#include <coroutine>
 #include <grpcpp/grpcpp.h>
 #include <CLS.grpc.pb.h>
+
+#include <redis_pool.h>
 
 namespace cls_core
 {
@@ -21,6 +25,7 @@ namespace cls_core
     class CallerBase{
         public:
             CallerBase(cls_gen::CounterRPC::AsyncService*, grpc::ServerCompletionQueue*);
+            ~CallerBase();
             virtual Task Proceed() = 0;
 
         protected:
@@ -30,7 +35,9 @@ namespace cls_core
             grpc::ServerCompletionQueue* cq_;
             grpc::ServerContext ctx_;
             Status status_; 
+            redis_t redis_;
     };
 
 } // namespace cls_core
 
+#endif // _caller_base_define_

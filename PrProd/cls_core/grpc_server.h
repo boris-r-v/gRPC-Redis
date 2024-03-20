@@ -1,5 +1,7 @@
-#include <memory>
+#ifndef _grps_server_define_
+#define _grps_server_define_
 
+#include <memory>
 
 #include <grpcpp/grpcpp.h>
 #include <CLS.grpc.pb.h>
@@ -29,3 +31,5 @@ namespace cls_core
 } // namespace cls
 
 
+
+#endif // _grps_server_define_

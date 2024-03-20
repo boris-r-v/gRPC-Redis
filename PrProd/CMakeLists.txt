@@ -59,8 +59,8 @@ target_link_libraries(hw_grpc_proto
 file(GLOB sources "cls_core/*.h" "cls_core/*.cpp" "cls_core/*.hpp" "main.cpp" "cls_bl/*.h" "cls_bl/*.cpp")
 
 # Targets greeter_[async_](client|server)
-add_executable(main ${sources})
-target_link_libraries(main
+add_executable(cls_server ${sources})
+target_link_libraries(cls_server
     hw_grpc_proto
     ${_GRPC_GRPCPP}
     ${_PROTOBUF_LIBPROTOBUF}

@@ -1,3 +1,6 @@
+#ifndef _callers_h_define_
+#define _callers_h_define_
+
 #include <caller_base.h>
 
 /**
@@ -42,4 +45,7 @@ namespace cls_bl
     };    
 
 } // namespace cls_cmd
+
+
+#endif //_callers_h_define
     

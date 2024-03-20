@@ -11,9 +11,16 @@ cls_core::Task cls_bl::SetBalanceInfo::Proceed() {
         if( Status::PROCESS == status_){
                 std::cout << "Status::PROCESS\n";
                 new SetBalanceInfo(service_, cq_ );
-                
-                //co_await redis_->set(std::to_string(request_.id()), data );
-                
+
+                std::string key ("key:");
+                key += std::to_string(request_.id());
+                std::string data;
+                request_.SerializeToString(&data);
+
+                auto ret = co_await redis_->set(key, data );
+
+                std::cout <<"set ret " << std::boolalpha<< ret << std::endl;
+
                 reply_.set_id(request_.id());
                                                         
                 status_ = Status::FINISH;
