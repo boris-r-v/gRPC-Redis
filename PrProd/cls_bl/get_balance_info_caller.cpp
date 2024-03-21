@@ -16,7 +16,8 @@ cls_bl::GetBalanceInfo::GetBalanceInfo(cls_gen::CounterRPC::AsyncService* _as, g
 
 cls_core::Task cls_bl::GetBalanceInfo::Proceed() {
         if( Status::PROCESS == status_){
-                new GetBalanceInfo(service_, cq_, redis_ );
+                //new GetBalanceInfo(service_, cq_, redis_ );
+                new GetBalanceInfo(service_, cq_ );
 
                 //co_await redis_->set(std::to_string(request_.id()), data );
 

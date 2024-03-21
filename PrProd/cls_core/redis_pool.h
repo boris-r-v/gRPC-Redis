@@ -12,7 +12,10 @@ namespace cls_core
     class redis_pool{
             std::list <std::shared_ptr<sw::redis::CoRedis>> list_;  //FIX ME - have to change to lock-free, thread-save queue 
             std::mutex lock_;
+            std::shared_ptr<sw::redis::EventLoop> event_loop_;
+
         public:
+            redis_pool();
             static redis_pool& instance();
             std::shared_ptr<sw::redis::CoRedis> pop();
             void push(std::shared_ptr<sw::redis::CoRedis>);

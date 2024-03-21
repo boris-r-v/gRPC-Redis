@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 #add_compile_options(-Wall -Wextra -Wpedantic)
-add_compile_options(-Wall -std=c++20 )
+add_compile_options(-Wall -std=c++23 )
 project(PreProd_CLS)
 
 find_package(Threads REQUIRED)

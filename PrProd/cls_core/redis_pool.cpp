@@ -2,6 +2,11 @@
 #include <iostream>
 
 
+cls_core::redis_pool::redis_pool()
+    :event_loop_( std::make_shared<sw::redis::EventLoop>() )
+{}
+
+
 cls_core::redis_pool& cls_core::redis_pool::instance(){
     static redis_pool instance_;
     return instance_;
@@ -28,7 +33,7 @@ cls_core::redis_t cls_core::redis_pool::pop(){
         pool_options.size = 1; 
         pool_options.wait_timeout = std::chrono::milliseconds(100);
         pool_options.connection_lifetime = std::chrono::minutes(10);
-        return std::make_shared<sw::redis::CoRedis>(sw::redis::CoRedis(conn_options, pool_options));
+        return std::make_shared<sw::redis::CoRedis>(sw::redis::CoRedis(conn_options, pool_options ));// event_loop_) );
     }
      
 }
