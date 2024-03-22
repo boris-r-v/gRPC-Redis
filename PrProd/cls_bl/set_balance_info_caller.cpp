@@ -17,8 +17,8 @@ cls_bl::SetBalanceInfo::SetBalanceInfo(cls_gen::CounterRPC::AsyncService* _as, g
 cls_core::Task cls_bl::SetBalanceInfo::Proceed() {
         if( Status::PROCESS == status_){
 
-                new SetBalanceInfo(service_, cq_, redis_ );
-                //new SetBalanceInfo(service_, cq_ );
+                //new SetBalanceInfo(service_, cq_, redis_ );
+                new SetBalanceInfo(service_, cq_ );
 
                 std::string key ("key:");
                 key += std::to_string(request_.id());

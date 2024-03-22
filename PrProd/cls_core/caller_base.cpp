@@ -7,8 +7,9 @@ cls_core::CallerBase::CallerBase( cls_gen::CounterRPC::AsyncService* service, gr
         :service_( service )
         ,cq_( cq )
         ,status_( Status::PROCESS )
-        //,redis_(cls_core::redis_pool::instance().pop()) //- this to work connection pool
+        ,redis_(cls_core::redis_pool::instance().get(0)) //- this to work connection pool
 {
+/*
         sw::redis::ConnectionOptions conn_options;
         conn_options.host = "127.0.0.1";  // Required.
         conn_options.port = 6379; 
@@ -19,6 +20,7 @@ cls_core::CallerBase::CallerBase( cls_gen::CounterRPC::AsyncService* service, gr
 std::cout << "connection num:" << pool_options.size << std::endl;
         redis_.reset( new sw::redis::CoRedis(conn_options, pool_options) );
 //        ++cntr;
+*/
 }
 cls_core::CallerBase::CallerBase( cls_gen::CounterRPC::AsyncService* service, grpc::ServerCompletionQueue* cq, redis_t _rds):
         service_( service ),
