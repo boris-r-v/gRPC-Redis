@@ -5,8 +5,9 @@
 
 #include <grpcpp/grpcpp.h>
 
-#include <CustomerLimitStorageRPC.pb.h>
-#include <CustomerLimitStorageRPC.grpc.pb.h>
+
+#include <proto/CLS.pb.h>
+#include <proto/CLS.grpc.pb.h>
 
 #include <coroutine>
 #include <sw/redis++/async_redis++.h>
@@ -43,7 +44,7 @@ class ServerImpl{
 
 	    builder.RegisterService(&service_);  // Register "service_" as the instance through which we'll communicate with clients. In this case it corresponds to an *asynchronous* service.
 	    cq_ = builder.AddCompletionQueue(); // Get hold of the completion queue used for the asynchronous communication with the gRPC runtime.
-        int num_worker = 2; 
+        int num_worker = 1; 
         sw::redis::ConnectionPoolOptions pool_options;
         pool_options.size = num_worker; 
         pool_options.wait_timeout = std::chrono::milliseconds(100);

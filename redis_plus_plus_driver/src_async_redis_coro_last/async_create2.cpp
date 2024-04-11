@@ -6,8 +6,8 @@
 #include <grpc/support/log.h>
 #include <grpcpp/grpcpp.h>
 
-#include <CustomerLimitStorageRPC.pb.h>
-#include <CustomerLimitStorageRPC.grpc.pb.h>
+#include <proto/CLS.pb.h>
+#include <proto/CLS.grpc.pb.h>
 
 std::atomic_ulong cntr;
 class CreateBalanceClientImpl {
@@ -55,6 +55,11 @@ class CreateBalanceClientImpl {
 };
 
 int main(int argc, char** argv) {
+
+    if ( argc !=2) return 0;
+
+
+
     std::string target_str {"127.0.0.1:5678"};
     ++cntr;
 
@@ -62,7 +67,10 @@ int main(int argc, char** argv) {
     std::thread thread_ = std::thread(&CreateBalanceClientImpl::AsyncCompleteRpc, &client);
     auto begin = std::chrono::steady_clock::now();
 
-    for (int i = 1; i < 50*10000; i++) {
+
+    int num = atoi(argv[1]);
+
+    for (int i = 1; i < num; i++) {
     //std::cout <<"Call: " << i << std::endl;
     client.create_balance( std::to_string(i), i, i );
     }
@@ -74,7 +82,7 @@ int main(int argc, char** argv) {
     auto end = std::chrono::steady_clock::now();
 
     auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
-    std::cout << "async_create takes " << elapsed_ms.count()/10 << "ms to create 50k records\n";
+    std::cout << "async_create takes " << elapsed_ms.count() << "ms to create "<< num <<" records\n";
     
 
     return 0;

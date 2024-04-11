@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package cls;
+
+
+service BalanceRPC {
+  rpc CreateBalance (BalanceData) returns (CreateBalanceResponce) {}
+  rpc GetBalance (GetBalanceRequest) returns (BalanceData) {}
+}
+
+
+message BalanceData {
+  int32  id  = 1;
+  string name = 2;
+  int32  value = 3;
+}
+message CreateBalanceResponce {
+  string message = 1;
+}
+message GetBalanceRequest {
+  int32 id = 1;
+}
+

@@ -6,8 +6,9 @@
 #include <grpc/support/log.h>
 #include <grpcpp/grpcpp.h>
 
-#include <CustomerLimitStorageRPC.pb.h>
-#include <CustomerLimitStorageRPC.grpc.pb.h>
+
+#include <proto/CLS.pb.h>
+#include <proto/CLS.grpc.pb.h>
 
 std::atomic_ulong cntr;
 

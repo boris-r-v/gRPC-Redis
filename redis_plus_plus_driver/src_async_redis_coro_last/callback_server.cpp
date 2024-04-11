@@ -5,8 +5,8 @@
 
 #include <grpcpp/grpcpp.h>
 
-#include <CustomerLimitStorageRPC.pb.h>
-#include <CustomerLimitStorageRPC.grpc.pb.h>
+#include <proto/CLS.pb.h>
+#include <proto/CLS.grpc.pb.h>
 
 //#include <sw/redis++/redis++.h>
 #include <sw/redis++/async_redis++.h>
