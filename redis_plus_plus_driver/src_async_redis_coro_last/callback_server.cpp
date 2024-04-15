@@ -31,7 +31,7 @@ class ServerImpl{
 
 	    builder.RegisterService(&service_);  // Register "service_" as the instance through which we'll communicate with clients. In this case it corresponds to an *asynchronous* service.
 	    cq_ = builder.AddCompletionQueue(); // Get hold of the completion queue used for the asynchronous communication with the gRPC runtime.
-        int num_worker = 4; 
+        int num_worker = 1; 
         sw::redis::ConnectionPoolOptions pool_options;
         pool_options.size = num_worker; 
         pool_options.wait_timeout = std::chrono::milliseconds(100);
@@ -94,7 +94,7 @@ class ServerImpl{
                     status_ = WAITASYNC;
                     std::string prefix ("Create ");
                     reply_.set_message(prefix + std::to_string( request_.id() ) );
-
+/*
                     std::string data;
                     request_.SerializeToString(&data);
                     redis_-> set( std::to_string(request_.id()), data, 
@@ -105,10 +105,14 @@ class ServerImpl{
                                             catch (sw::redis::Error const& e ){
                                                 std::cout << "CreateBalanceCaller redis error occur " <<e.what() << std::endl;
                                             }
-                                            status_ = FINISH;
-                                            responder_.Finish(reply_, grpc::Status::OK, this);
                                         }
                                     );
+
+*/
+
+                    status_ = FINISH;
+                    responder_.Finish(reply_, grpc::Status::OK, this);
+
                 } else if(status_ == FINISH) {
                     //GPR_ASSERT(status_ == FINISH);
                     delete this; 

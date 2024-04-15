@@ -9,7 +9,11 @@
 #include <proto/CLS.pb.h>
 #include <proto/CLS.grpc.pb.h>
 
+using ltime = std::chrono::time_point<std::chrono::steady_clock>;
+
 std::atomic_ulong cntr;
+std::atomic_ullong duration_;
+
 class CreateBalanceClientImpl {
   public:
     CreateBalanceClientImpl(std::shared_ptr<grpc::Channel> channel): stub_(cls::BalanceRPC::NewStub(channel)) {}
@@ -36,6 +40,7 @@ class CreateBalanceClientImpl {
       GPR_ASSERT(ok);
       //if (call->status.ok()) std::cout << "Caller received: " << call->reply.message()<< std::endl;
       //else std::cout << "RPC failed" << std::endl;
+      duration_ += call->getDur();
       if (!(call->status.ok())) std::cout << "RPC failed" << std::endl;
       delete call;
       if ( --cntr <= 0 ) break;
@@ -45,6 +50,12 @@ class CreateBalanceClientImpl {
  private:
 
   struct CreateBalanceAsync {
+    CreateBalanceAsync(): begin(std::chrono::steady_clock::now()) {}
+    unsigned long getDur(){
+      auto end = std::chrono::steady_clock::now();
+      return std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();         
+    }
+    ltime begin;
     cls::CreateBalanceResponce reply;
     grpc::ClientContext context;
     grpc::Status status;
@@ -56,11 +67,12 @@ class CreateBalanceClientImpl {
 
 int main(int argc, char** argv) {
 
-    if ( argc !=2) return 0;
+    if ( argc !=3) {
+      std::cout << "Usage: "<< argv[0] <<" ip:port nm_msg\n";
+      return 0;
+    }
 
-
-
-    std::string target_str {"127.0.0.1:5678"};
+    std::string target_str {argv[1]};
     ++cntr;
 
     CreateBalanceClientImpl client( grpc::CreateChannel(target_str, grpc::InsecureChannelCredentials()));
@@ -68,7 +80,7 @@ int main(int argc, char** argv) {
     auto begin = std::chrono::steady_clock::now();
 
 
-    int num = atoi(argv[1]);
+    int num = atoi(argv[2]);
 
     for (int i = 1; i < num; i++) {
     //std::cout <<"Call: " << i << std::endl;
@@ -83,7 +95,7 @@ int main(int argc, char** argv) {
 
     auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
     std::cout << "async_create takes " << elapsed_ms.count() << "ms to create "<< num <<" records\n";
-    
+    std::cout << "Average time to one CreateBalance: " << 0.001*duration_/num << "ms\n";
 
     return 0;
 }

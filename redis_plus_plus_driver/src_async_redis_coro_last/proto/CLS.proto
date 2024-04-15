@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package cls;
 
-
 service BalanceRPC {
   rpc CreateBalance (BalanceData) returns (CreateBalanceResponce) {}
   rpc GetBalance (GetBalanceRequest) returns (BalanceData) {}

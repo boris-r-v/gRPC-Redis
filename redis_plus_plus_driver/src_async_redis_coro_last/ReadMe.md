@@ -19,3 +19,10 @@ Async: read takes 796ms to read 50k records
 
 
 
+
+
+
+gRPC optimisation
+-O3: async_create2 50000 -> async_create takes 2092ms to create 50000 records
+-O2: async_create2 50000 -> async_create takes 2308ms to create 50000 records
+

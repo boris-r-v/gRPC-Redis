@@ -107,11 +107,11 @@ class ServerImpl{
                 } else if (status_ == PROCESS) {
                     new CreateBalanceCaller(service_, cq_, redis_ );
 
-                    status_ = WAITASYNC;
+//                    status_ = WAITASYNC;
                     std::string prefix ("Create ");
                     reply_.set_message(prefix + std::to_string( request_.id() ) );
 
-                    std::string data;
+/*                    std::string data;
                     request_.SerializeToString(&data);
 
                     try {
@@ -121,6 +121,7 @@ class ServerImpl{
                     } catch (const sw::redis::Error &e) {
                         std::cout << "GreateBalanceCaller redis error occur "<< e.what() << std::endl;
                     }
+*/
                     status_ = FINISH;
                     responder_.Finish(reply_, grpc::Status::OK, this);
 
@@ -131,7 +132,8 @@ class ServerImpl{
                 else {
                     std::cout << "call CreateBalanceCaller::Proceed while async from redis " << std::endl;
                 }
-            }
+            co_return;    
+        }
 	    private:
             cls::BalanceData request_;
             cls::CreateBalanceResponce reply_;

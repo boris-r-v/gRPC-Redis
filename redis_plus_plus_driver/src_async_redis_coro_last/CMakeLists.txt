@@ -7,9 +7,9 @@ find_package(Threads REQUIRED)
 
 
 #Coro lib
-find_package(cppcoro REQUIRED)
-set(_COROLIB cppcoro::cppcoro)
-message(STATUS "Using Coro library ${_COROLIB}")
+#find_package(cppcoro REQUIRED)
+#set(_COROLIB cppcoro::cppcoro)
+#message(STATUS "Using Coro library ${_COROLIB}")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 include(CPM)
@@ -38,10 +38,13 @@ include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 # Targets greeter_[async_](client|server)
 foreach(_target
   async_read async_create2
-  corolib_server callback_server
+  #corolib_server 
+  callback_server
   read_one 
   corostd_server
-  corostd2_server )
+  corostd2_server
+  grpc_callback_server
+  grpc_callback_client )
   add_executable(${_target} "${_target}.cpp")
   target_link_libraries(${_target}
     hw_grpc_proto
